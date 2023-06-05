@@ -12,11 +12,16 @@ namespace Test3D
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		
-		/// <summary>
-		/// Stores the window dimensions in a rectangle object for easy use
-		/// </summary>
-		private Rectangle windowSize;
+
+        private SpriteFont font;
+        private int textXOffset = 20;
+        private int textYOffset = 20;
+        private int textYSpacing = 32;
+
+        /// <summary>
+        /// Stores the window dimensions in a rectangle object for easy use
+        /// </summary>
+        private Rectangle windowSize;
 
         private VertexBuffer VertexBuffer { get; set; }
         private IndexBuffer IndexBuffer { get; set; }
@@ -26,11 +31,11 @@ namespace Test3D
         private List<short> indices = new List<short>();
 
         private WrappingInt sideCount = new WrappingInt(8, 3, 20);
-        private WrappingInt subDivCount = new WrappingInt(5, 1, 20);
-		private WrappingInt curve = new WrappingInt(2, 0, 20);
+        private WrappingInt subDivCount = new WrappingInt(1, 1, 20);
+		private WrappingInt curve = new WrappingInt(0, 0, 20);
 		private WrappingInt xSize = new WrappingInt(1, 0, 20);
 		private WrappingInt ySize = new WrappingInt(1, 0, 20);
-		private WrappingInt zSize = new WrappingInt(4, 1, 20);
+		private WrappingInt zSize = new WrappingInt(1, 1, 20);
 
         private WrappingInt viewHorAngle = new WrappingInt(0, 0, 360);
         private int viewVertAngle = 0; //Limit -60 to 60
@@ -80,6 +85,8 @@ namespace Test3D
 		protected override void LoadContent()
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            font = Content.Load<SpriteFont>("arial");
 
             // TODO: use this.Content to load your game content here
             // ex:
@@ -248,6 +255,26 @@ namespace Test3D
                 _graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, indices.Count / 3);
             }
 
+            _spriteBatch.Begin();
+
+            _spriteBatch.DrawString(font, "Sides: " + sideCount.Value, new Vector2(textXOffset, textYOffset), Color.Black);
+
+            _spriteBatch.DrawString(font, "Subdivs: " + subDivCount.Value, new Vector2(textXOffset, textYOffset + textYSpacing), Color.Black);
+
+            _spriteBatch.DrawString(font, "Curve: " + curve.Value, new Vector2(textXOffset, textYOffset + textYSpacing * 2), Color.Black);
+
+            _spriteBatch.DrawString(font, "X Size: " + xSize.Value, new Vector2(textXOffset, textYOffset + textYSpacing * 3), Color.Black);
+
+            _spriteBatch.DrawString(font, "Y Size: " + ySize.Value, new Vector2(textXOffset, textYOffset + textYSpacing * 4), Color.Black);
+
+            _spriteBatch.DrawString(font, "Z Size: " + zSize.Value, new Vector2(textXOffset, textYOffset + textYSpacing * 5), Color.Black);
+
+            _spriteBatch.DrawString(font, "Rotation: " + viewHorAngle.Value + ", " + viewVertAngle, new Vector2(textXOffset, textYOffset + textYSpacing * 6), Color.Black);
+
+            _spriteBatch.DrawString(font, "Cam Distance: " + viewDist, new Vector2(textXOffset, textYOffset + textYSpacing * 7), Color.Black);
+
+            _spriteBatch.End();
+
             base.Draw(gameTime);
 		}
 
@@ -275,7 +302,7 @@ namespace Test3D
 							(float)(Math.Cos((2 * Math.PI / sideCount.Value) * s) * (xSize.Value + Math.Cos(Math.PI * (z / zSize.Value) / 2) * curve.Value)),
                             (float)(Math.Sin((2 * Math.PI / sideCount.Value) * s) * (ySize.Value + Math.Cos(Math.PI * (z / zSize.Value) / 2) * curve.Value)), 
 							z), 
-						new Color(s * 32, d * 256, 0)));
+						new Color(s * (256 / sideCount.Value), d * (256 / subDivCount.Value), 0)));
 					if(d < subDivCount.Value && s != sideCount.Value - 1)
                     {
 						short i = (short)(s + d * sideCount.Value + 1);
